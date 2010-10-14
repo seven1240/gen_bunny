@@ -25,8 +25,8 @@
 
 -include("util.hrl").
 
-setup() ->
-    VHost = gbi_util:setup(simple_publish),
+setup(VHost0) ->
+    VHost = gbi_util:setup(VHost0),
 
     {ok, _Pid} = bunnyc:start_link(
                    test,
@@ -44,7 +44,7 @@ teardown(VHost) ->
 
 simple_publish_test_() ->
     {setup,
-     fun setup/0,
+     fun () -> setup(simple_publish) end,
      fun teardown/1,
      fun(_VHost) ->
              ?_test([begin
@@ -58,7 +58,7 @@ simple_publish_test_() ->
 
 simple_ack_test_() ->
     {setup,
-     fun setup/0,
+     fun () -> setup(simple_ack) end,
      fun teardown/1,
      fun(VHost) ->
              ?_test([begin
