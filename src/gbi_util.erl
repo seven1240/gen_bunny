@@ -27,10 +27,19 @@
 
 -include("util.hrl").
 
+rabbit_host() ->
+    case os:getenv("RABBIT_HOST") of
+        false ->
+            "localhost";
+        Host ->
+            Host
+    end.
+
+
 setup(VHost0) ->
     VHost = list_to_binary(atom_to_list(VHost0)),
-    rabbit_mgt:create_vhost(?HOST, VHost),
-    rabbit_mgt:set_permission(?HOST, VHost, <<"guest">>,
+    rabbit_mgt:create_vhost(rabbit_host(), VHost),
+    rabbit_mgt:set_permission(rabbit_host(), VHost, <<"guest">>,
                                {struct, [{scope, client},
                                          {configure, ?WC},
                                          {write, ?WC},
@@ -38,7 +47,8 @@ setup(VHost0) ->
     VHost.
 
 teardown(VHost) ->
-    rabbit_mgt:delete_vhost(?HOST, VHost).
+    rabbit_mgt:delete_vhost(rabbit_host(), VHost).
 
 connect(VHost) ->
-    {network, #amqp_params{virtual_host=VHost}}.
+    {network, #amqp_params{host=rabbit_host(),
+                           virtual_host=VHost}}.

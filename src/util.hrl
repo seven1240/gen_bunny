@@ -29,6 +29,4 @@
 
 -define(WC, <<".*">>).
 
--define(HOST, "localhost").
-
 -endif.
