@@ -28,5 +28,6 @@
 -include_lib("gen_bunny/include/gen_bunny.hrl").
 
 -define(WC, <<".*">>).
+-define(WAIT, timer:sleep(1000)).
 
 -endif.

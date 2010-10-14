@@ -25,7 +25,7 @@
 
 -include("util.hrl").
 
-simple_publish_test() ->
+setup() ->
     VHost = gbi_util:setup(simple_publish),
 
     {ok, _Pid} = bunnyc:start_link(
@@ -33,10 +33,61 @@ simple_publish_test() ->
                    gbi_util:connect(VHost),
                    <<"test">>,
                    []),
-    bunnyc:publish(test, <<"test">>, <<"foo">>),
-    {Resp, Msg} = bunnyc:get(test, true),
-    ?assertEqual(true, is_record(Resp, 'basic.get_ok')),
-    ?assertEqual(true, is_record(Msg, amqp_msg)),
-    ?assertEqual(<<"foo">>, bunny_util:get_payload(Msg)),
 
+    VHost.
+
+teardown(VHost) ->
+    bunnyc:stop(test),
+    application:stop(gen_bunny),
     ok = gbi_util:teardown(VHost).
+
+
+simple_publish_test_() ->
+    {setup,
+     fun setup/0,
+     fun teardown/1,
+     fun(_VHost) ->
+             ?_test([begin
+                         bunnyc:publish(test, <<"test">>, <<"foo">>),
+                         {Resp, Msg} = bunnyc:get(test, true),
+                         ?assertEqual(true, is_record(Resp, 'basic.get_ok')),
+                         ?assertEqual(true, is_record(Msg, amqp_msg)),
+                         ?assertEqual(<<"foo">>, bunny_util:get_payload(Msg))
+                     end])
+     end}.
+
+simple_ack_test_() ->
+    {setup,
+     fun setup/0,
+     fun teardown/1,
+     fun(VHost) ->
+             ?_test([begin
+                         bunnyc:publish(test, <<"test">>, <<"foo">>),
+                         {Resp, Msg} = bunnyc:get(test, false),
+
+                         ?assertEqual(true, is_record(Resp, 'basic.get_ok')),
+                         ?assertEqual(true, is_record(Msg, amqp_msg)),
+                         ?assertEqual(<<"foo">>, bunny_util:get_payload(Msg)),
+
+                         ?WAIT,
+                         {struct, QueueStats1} = rabbit_mgt:queue(
+                                                   gbi_util:rabbit_host(),
+                                                   VHost, <<"test">>),
+
+                         ?assertEqual(1, mochilists:get_value(
+                                           <<"messages_unacknowledged">>,
+                                           QueueStats1)),
+
+                         bunnyc:ack(test, Resp#'basic.get_ok'.delivery_tag),
+
+                         ?WAIT,
+                         {struct, QueueStats2} = rabbit_mgt:queue(
+                                                   gbi_util:rabbit_host(),
+                                                   VHost, <<"test">>),
+
+
+                         ?assertEqual(0, mochilists:get_value(
+                                           <<"messages_unacknowledged">>,
+                                           QueueStats2))
+                     end])
+     end}.
