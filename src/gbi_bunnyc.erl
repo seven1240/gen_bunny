@@ -34,8 +34,9 @@ simple_publish_test() ->
                    <<"test">>,
                    []),
     bunnyc:publish(test, <<"test">>, <<"foo">>),
-    ?assertMatch({Rec, _Msg}
-                 when is_record(Rec, 'basic.get_ok'),
-                      bunnyc:get(test, false)),
+    {Resp, Msg} = bunnyc:get(test, true),
+    ?assertEqual(true, is_record(Resp, 'basic.get_ok')),
+    ?assertEqual(true, is_record(Msg, amqp_msg)),
+    ?assertEqual(<<"foo">>, bunny_util:get_payload(Msg)),
 
-    gbi_util:teardown(VHost).
+    ok = gbi_util:teardown(VHost).
