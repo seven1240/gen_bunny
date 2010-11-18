@@ -3,6 +3,8 @@
 -export([vhosts/1, create_vhost/2, delete_vhost/2]).
 -export([set_permission/4]).
 -export([queue/3]).
+-export([connections/1, connection/2, close_connection/2]).
+
 
 -define(MGT_PORT, 55672).
 
@@ -29,6 +31,19 @@ queue(Host, VHost, Queue) ->
                                 [{vhost, VHost}, {queue, Queue}])),
     Body.
 
+connections(Host) ->
+    {200, Body} = get_(endpoint(Host, connections, [])),
+    Body.
+
+connection(Host, Connection) ->
+    {200, Body} = get_(endpoint(Host, connection,
+                                [{connection, Connection}])),
+    Body.
+
+close_connection(Host, Connection) ->
+    {204, _} = delete_(endpoint(Host, connection,
+                                [{connection, Connection}])),
+    ok.
 
 %% Private
 %% =======

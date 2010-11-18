@@ -37,6 +37,8 @@ rabbit_host() ->
 
 
 setup(VHost0) ->
+    error_logger:tty(false),
+    error_logger:logfile({open, atom_to_list(VHost0) ++ ".error.log"}),
     VHost = list_to_binary(atom_to_list(VHost0)),
     rabbit_mgt:create_vhost(rabbit_host(), VHost),
     rabbit_mgt:set_permission(rabbit_host(), VHost, <<"guest">>,
@@ -47,7 +49,9 @@ setup(VHost0) ->
     VHost.
 
 teardown(VHost) ->
-    rabbit_mgt:delete_vhost(rabbit_host(), VHost).
+    rabbit_mgt:delete_vhost(rabbit_host(), VHost),
+    error_logger:logfile(close),
+    error_logger:tty(true).
 
 connect(VHost) ->
     {network, #amqp_params{host=rabbit_host(),

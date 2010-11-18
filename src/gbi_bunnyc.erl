@@ -81,6 +81,7 @@ simple_ack_test_() ->
                          bunnyc:ack(test, Resp#'basic.get_ok'.delivery_tag),
 
                          ?WAIT,
+                         ?WAIT,
                          {struct, QueueStats2} = rabbit_mgt:queue(
                                                    gbi_util:rabbit_host(),
                                                    VHost, <<"test">>),
@@ -91,3 +92,43 @@ simple_ack_test_() ->
                                            QueueStats2))
                      end])
      end}.
+
+simple_reconnect_test_() ->
+    {timeout, 30, fun() ->
+     {setup,
+      fun() ->
+              setup(simple_reconnect) end,
+      fun teardown/1,
+      fun(_VHost) ->
+              ?_test([begin
+                          Connections = rabbit_mgt:connections(
+                                          gbi_util:rabbit_host()),
+
+                          ?assertEqual(length(Connections), 1),
+
+                          {struct, Props} = hd(Connections),
+
+                          ?assertEqual(proplists:get_value(<<"vhost">>, Props),
+                                       <<"simple_reconnect">>),
+
+                          Name = proplists:get_value(<<"name">>, Props),
+
+                          ok = rabbit_mgt:close_connection(
+                                 gbi_util:rabbit_host(), Name),
+
+                          timer:sleep(6000),
+
+                          Connections2 = rabbit_mgt:connections(
+                                           gbi_util:rabbit_host()),
+
+                          ?assertEqual(length(Connections2), 1),
+
+                          {struct, Props2} = hd(Connections2),
+                          ?assertEqual(
+                             proplists:get_value(<<"vhost">>, Props2),
+                             <<"simple_reconnect">>),
+
+                          ?assertNot(
+                             Name =:= proplists:get_value(<<"name">>, Props2))
+                      end])
+      end} end}.
