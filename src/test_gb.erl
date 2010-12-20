@@ -81,7 +81,7 @@ handle_call(get_casts, _From, State=#state{casts=Casts}) ->
 handle_call(get_infos, _From, State=#state{infos=Infos}) ->
     {reply, Infos, State};
 handle_call(crash, _From, _State=#state{}) ->
-    ok = crashed;
+    erlang:error({badmatch, crashed});
 handle_call(stop, _From, State=#state{}) ->
     {stop, normal, ok, State};
 handle_call(Msg, _From, State=#state{calls=Calls}) ->
