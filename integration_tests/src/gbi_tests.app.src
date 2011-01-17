@@ -1,0 +1,10 @@
+% -*- mode: erlang -*-
+{application,
+ gbi_tests,
+ [{description,  "gen_bunny integration tests"},
+  {vsn,          "0.1"},
+  {modules,      []},
+  {registered,   []},
+  {mod,          {gbi_tests, []}},
+  {env,          []},
+  {applications, [kernel, stdlib]}]}.
