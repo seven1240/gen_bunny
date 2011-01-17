@@ -140,8 +140,8 @@ put_(Endpoint, Data) ->
     request("PUT", Endpoint, Data).
 
 
-post_(Endpoint, Data) ->
-    request("POST", Endpoint, Data).
+%% post_(Endpoint, Data) ->
+%%     request("POST", Endpoint, Data).
 
 
 delete_(Endpoint) ->
