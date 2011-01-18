@@ -1,4 +1,4 @@
-REBAR:=./rebar
+REBAR:=../rebar
 
 all: erl
 
@@ -7,7 +7,7 @@ erl:
 
 test: all
 	@mkdir -p .eunit
-	$(REBAR) skip_deps=true eunit
+	$(REBAR) -v skip_deps=true eunit
 
 clean:
 	$(REBAR) clean
