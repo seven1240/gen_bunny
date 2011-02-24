@@ -14,7 +14,7 @@ test: all
 	@mkdir -p .eunit
 	$(REBAR) skip_deps=true eunit
 
-int_test: all
+int_test: clean all
 	@git checkout -b current
 	(cd integration_tests; $(MAKE) test)
 	@git checkout -q `git rev-parse current`
@@ -22,7 +22,7 @@ int_test: all
 
 clean:
 	$(REBAR) clean
-	-rm -rvf deps ebin doc .eunit
+	-rm -rf deps ebin doc .eunit
 	(cd integration_tests; $(MAKE) clean)
 
 doc:
