@@ -15,7 +15,6 @@ test: all
 	$(REBAR) skip_deps=true eunit
 
 int_test: all
-	-rm -rf .eunit
 	(cd integration_tests; $(MAKE) test)
 
 clean:
