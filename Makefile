@@ -21,10 +21,10 @@ int_test: clean_deps all
 	@git branch -D current
 
 clean_deps:
-	$(REBAR) clean
 	-rm -rf deps
 
 clean: clean_deps
+	$(REBAR) clean
 	-rm -rf ebin doc .eunit
 	(cd integration_tests; $(MAKE) clean)
 
