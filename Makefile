@@ -15,10 +15,8 @@ test: all
 	$(REBAR) skip_deps=true eunit
 
 int_test: all
-	@git checkout -b current
+	@-rm -rf deps/gen_bunny
 	(cd integration_tests; $(MAKE) test)
-	@git checkout -q `git rev-parse current`
-	@git branch -D current
 
 clean:
 	$(REBAR) clean
