@@ -244,6 +244,32 @@ ack_test_() ->
          end])}.
 
 
+register_return_handler_test_() ->
+    {setup, fun normal_setup/0, fun bunnyc_stop/1,
+     ?_test(
+	[begin
+	     ExpectedPid = self(),
+	     meck:expect(amqp_channel, register_return_handler, 
+			 fun(dummy_channel, Pid) when Pid =:= ExpectedPid ->
+				 ok
+			 end),
+	     ?assertEqual(ok, bunnyc:register_return_handler(bunnyc_test, ExpectedPid))
+	 end])}.
+
+
+register_flow_handler_test_() ->
+    {setup, fun normal_setup/0, fun bunnyc_stop/1,
+     ?_test(
+	[begin
+	     ExpectedPid = self(),
+	     meck:expect(amqp_channel, register_flow_handler, 
+			 fun(dummy_channel, Pid) when Pid =:= ExpectedPid ->
+				 ok
+			 end),
+	     ?assertEqual(ok, bunnyc:register_flow_handler(bunnyc_test, ExpectedPid))
+	 end])}.
+
+
 %% These are mostly to placate cover.
 
 unknown_cast_test() ->

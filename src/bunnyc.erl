@@ -37,7 +37,10 @@
          async_publish/3,
          async_publish/4,
          get/2,
-         ack/2]).
+         ack/2,
+	 register_return_handler/2,
+	 register_flow_handler/2
+	]).
 
 -export([init/1,
          handle_call/3,
@@ -70,6 +73,11 @@ get(Name, NoAck) ->
 ack(Name, Tag) ->
     gen_server:cast(Name, {ack, Tag}).
 
+register_return_handler(Name, PID) when is_pid(PID) ->
+    gen_server:cast(Name, {register_return_handler, PID}).
+
+register_flow_handler(Name, PID) when is_pid(PID) ->
+    gen_server:cast(Name, {register_flow_handler, PID}).
 
 start_link(Name, ConnectionInfo, DeclareInfo, Args) ->
     application:start(gen_bunny),
@@ -133,6 +141,14 @@ handle_cast({ack, Tag}, State = #bunnyc_state{channel=Channel}) ->
     internal_ack(Channel, Tag),
     {noreply, State};
 
+handle_cast({register_return_handler, PID}, State = #bunnyc_state{ channel = Channel }) ->
+    amqp_channel:register_return_handler(Channel, PID),
+    {noreply, State};
+
+handle_cast({register_flow_handler, PID}, State = #bunnyc_state{ channel = Channel }) ->
+    amqp_channel:register_flow_handler(Channel, PID),
+    {noreply, State};
+
 handle_cast(_Request, State) ->
     {noreply, State}.
 
@@ -157,11 +173,13 @@ code_change(_OldVersion, State, _Extra) ->
 internal_publish(Fun, Channel, Exchange, Key, Message, Opts)
   when ?is_message(Message) ->
     Mandatory = proplists:get_value(mandatory, Opts, false),
+    Immediate = proplists:get_value(immediate, Opts, false),
 
     BasicPublish = #'basic.publish'{
       exchange = bunny_util:get_name(Exchange),
       routing_key = Key,
-      mandatory = Mandatory},
+      mandatory = Mandatory,
+      immediate = Immediate},
 
     Fun(Channel, BasicPublish, Message);
 internal_publish(Fun, Channel, Exchange, Key, Message, Opts)
