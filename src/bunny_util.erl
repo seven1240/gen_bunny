@@ -54,18 +54,6 @@
 -export([connect/0, connect/1, declare/2]).
 -export([declare_exchange/2, declare_queue/2, bind_queue/4]).
 
-%% @type message()=#content{}
-%% @type payload()=#binary{}
-%% @type delivery_mode()=non_neg_integer()
-%% @type content_type()=binary()
-%% @type exchange()=#'exchange.declare'{}
-%% @type servobj_name()=binary()
-%% @type exchange_type()=binary()
-%% @type bunny_queue()=#'queue.declare'{}
-%% @type binding()=#'queue.bind'{}
-%% @type durable_obj()=exchange()|bunny_queue()
-
-
 %%
 %% Message helpers
 %%
@@ -151,9 +139,9 @@ set_type(Exchange, Type) when ?is_exchange(Exchange), is_binary(Type) ->
 %%
 %%
 
-%% @spec new_queue(Name::servobj_name()) -> bunny_queue()
+%% @spec new_queue(Name::servobj_name()) -> queue()
 %% @doc  Create a new Queue named Name
--spec(new_queue(servobj_name()) -> bunny_queue()).
+-spec(new_queue(servobj_name()) -> amqp_queue()).
 new_queue(Queue) when ?is_queue(Queue) ->
     Queue;
 new_queue(Name) when is_binary(Name) ->
@@ -165,9 +153,9 @@ new_queue(Name) when is_binary(Name) ->
 %% XXX: I don't particularly like this, but I don't like them having longer
 %%      names either.
 
-%% @spec get_name(QueueOrExchange::exchange()|bunny_queue()) -> servobj_name()
+%% @spec get_name(QueueOrExchange::exchange()|amqp_queue()) -> servobj_name()
 %% @doc  Return the name of the Queue or Exchange.
--spec(get_name(exchange()|bunny_queue()) -> servobj_name()).
+-spec(get_name(exchange()|amqp_queue()) -> servobj_name()).
 get_name(#'exchange.declare'{exchange=Name})  ->
     Name;
 get_name(#'queue.declare'{queue=Name}) ->

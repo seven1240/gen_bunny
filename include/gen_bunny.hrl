@@ -15,16 +15,16 @@
 %%
 %% -types() - EDoc really needs to learn to read these.
 %%
--type(message() :: #content{}).
+-type(message() :: #amqp_msg{}).
 -type(payload() :: binary()).
 -type(delivery_mode() :: non_neg_integer()).
 -type(content_type() :: binary()).
 -type(exchange() :: #'exchange.declare'{}).
 -type(servobj_name() :: binary()).
 -type(exchange_type() :: binary()).
--type(bunny_queue() :: #'queue.declare'{}).
+-type(amqp_queue() :: #'queue.declare'{}).
 -type(binding() :: #binding{}).
--type(durable_obj() :: exchange() | bunny_queue()).
+-type(durable_obj() :: exchange() | amqp_queue()).
 
 %% Process state
 -record(gen_bunny_state, {declare_fun,
