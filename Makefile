@@ -27,3 +27,13 @@ clean:
 
 doc:
 	$(REBAR) doc
+
+build-plt: all
+	$(REBAR) skip_deps=true check-plt || $(REBAR) skip_deps=true build-plt
+
+dialyze: build-plt
+	$(REBAR) skip_deps=true dialyze
+
+xref:
+	$(REBAR) skip_deps=true xref
+
