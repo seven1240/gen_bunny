@@ -67,6 +67,8 @@ start_link(Module, ConnectionInfo, DeclareInfo, InitArgs)
   when is_atom(ConnectionInfo) orelse is_tuple(ConnectionInfo),
        is_binary(DeclareInfo) orelse is_tuple(DeclareInfo),
        is_list(InitArgs) ->
+    application:start(rabbit_common),
+    application:start(amqp_client),
     application:start(gen_bunny),
     gen_server:start_link(
       ?MODULE,

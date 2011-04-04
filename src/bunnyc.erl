@@ -38,9 +38,9 @@
          async_publish/4,
          get/2,
          ack/2,
-	 register_return_handler/2,
-	 register_flow_handler/2
-	]).
+         register_return_handler/2,
+         register_flow_handler/2
+        ]).
 
 -export([init/1,
          handle_call/3,
@@ -73,15 +73,21 @@ get(Name, NoAck) ->
 ack(Name, Tag) ->
     gen_server:cast(Name, {ack, Tag}).
 
+
 register_return_handler(Name, PID) when is_pid(PID) ->
     gen_server:cast(Name, {register_return_handler, PID}).
+
 
 register_flow_handler(Name, PID) when is_pid(PID) ->
     gen_server:cast(Name, {register_flow_handler, PID}).
 
+
 start_link(Name, ConnectionInfo, DeclareInfo, Args) ->
+    application:start(rabbit_common),
+    application:start(amqp_client),
     application:start(gen_bunny),
-    gen_server:start_link({local, Name}, ?MODULE, [ConnectionInfo, DeclareInfo, Args], []).
+    gen_server:start_link({local, Name}, ?MODULE,
+                          [ConnectionInfo, DeclareInfo, Args], []).
 
 
 stop(Name) ->
