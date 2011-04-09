@@ -26,7 +26,7 @@ clean:
 	(cd integration_tests; $(MAKE) clean)
 
 doc:
-	$(REBAR) skipd_deps=true doc
+	$(REBAR) skip_deps=true doc
 
 build-plt: all
 	$(REBAR) skip_deps=true check-plt || $(REBAR) skip_deps=true build-plt
