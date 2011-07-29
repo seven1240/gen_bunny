@@ -148,18 +148,22 @@ handle_cast({ack, Tag}, State = #bunnyc_state{channel=Channel}) ->
     {noreply, State};
 
 handle_cast({register_return_handler, PID}, State = #bunnyc_state{ channel = Channel }) ->
-    amqp_channel:register_return_handler(Channel, PID),
-    {noreply, State};
+    internal_register_return_handler(Channel, PID),
+    {noreply, State#bunnyc_state{return_handler_pid = PID}};
 
 handle_cast({register_flow_handler, PID}, State = #bunnyc_state{ channel = Channel }) ->
-    amqp_channel:register_flow_handler(Channel, PID),
-    {noreply, State};
+    internal_register_flow_handler(Channel, PID),
+    {noreply, State#bunnyc_state{flow_handler_pid = PID}};
 
 handle_cast(_Request, State) ->
     {noreply, State}.
 
 %% @private
-handle_info({reconnected, {ConnectionPid, ChannelPid}}, State) ->
+handle_info({reconnected, {ConnectionPid, ChannelPid}},
+            #bunnyc_state{return_handler_pid = ReturnHandlerPid,
+                          flow_handler_pid = FlowHandlerPid} = State) ->
+    internal_register_return_handler(ChannelPid, ReturnHandlerPid),
+    internal_register_flow_handler(ChannelPid, FlowHandlerPid),
     {noreply, State#bunnyc_state{connection=ConnectionPid, channel=ChannelPid}};
 
 handle_info(_Info, State) ->
@@ -201,3 +205,11 @@ internal_get(Channel, Queue, NoAck) ->
 
 internal_ack(Channel, DeliveryTag) ->
     amqp_channel:cast(Channel, #'basic.ack'{delivery_tag=DeliveryTag}).
+
+internal_register_return_handler(_Channel, undefined) -> ok;
+internal_register_return_handler(Channel, PID) ->
+    amqp_channel:register_return_handler(Channel, PID).
+
+internal_register_flow_handler(_Channel, undefined) -> ok;
+internal_register_flow_handler(Channel, PID) ->
+    amqp_channel:register_flow_handler(Channel, PID).

@@ -39,6 +39,7 @@
                           consumer_tag,
                           no_ack}).
 
--record(bunnyc_state, {connection, channel, exchange, queue, key}).
+-record(bunnyc_state, {connection, channel, exchange, queue, key,
+                       return_handler_pid, flow_handler_pid}).
 
 -endif. %% GEN_BUNNY_HRL_PREIFX
