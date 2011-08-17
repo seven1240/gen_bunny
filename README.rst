@@ -4,6 +4,9 @@ gen_bunny
 gen_bunny is a RabbitMQ_ client library for erlang whose primary goal is to be
 easy to use.  Especially for simple publisher and consumer applications.
 
+.. image:: http://travis-ci.org/dreid/gen_bunny.png
+   :target: http://travis-ci.org/dreid/gen_bunny
+
 
 Getting the code
 ================
