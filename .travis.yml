@@ -1,5 +1,5 @@
 language: erlang
-script: "make test integration_test"
+script: "make test int_test"
 notifications:
   email: false
 otp_release:
