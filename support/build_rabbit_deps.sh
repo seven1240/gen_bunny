@@ -5,16 +5,16 @@
 # It downloads everything needed to build these applications and then copies
 # the source and include files into the amqp_client and rabbit_common repos it
 # checks out from github.
-# 
+#
 # This is done because the build of rabbitmq-erlang-client and
 # rabbitmq-server is too complicated to be performed by rebar.
-# 
+#
 # Essentially this is a prebuild step that can be used to depend on rebar.
 # gen_bunny is only ever going to depend on tagged releases of the rabbitmq code
 #
 
-VERSION="2_1_0"
-
+VERSION="2_5_1"
+DOT_VERSION=$(echo "${VERSION}" | tr _ .);
 BASE_URL="http://hg.rabbitmq.com/"
 
 GIT_BASE_URL="http://github.com/dreid/"
@@ -29,7 +29,7 @@ for project in rabbitmq-erlang-client rabbitmq-server rabbitmq-codegen; do
 done
 
 pushd rabbitmq-erlang-client
-make
+make VERSION=${DOT_VERSION}
 popd
 
 stamp=$(date "+%Y_%m_%dT%H_%M_%S");
@@ -50,6 +50,9 @@ common_deps=$(erl -noshell -eval '{ok,[{_,_,[_,_,{modules, Mods},_,_,_]}]} =
                                       file:consult("rabbit_common.app"),
                                       [io:format("~p ",[M]) || M <- Mods],
                                       halt().')
+
+common_deps="${common_deps} rabbit_log"
+
 popd
 
 pushd rabbitmq-server
@@ -65,5 +68,5 @@ popd
 cp -v rabbitmq-erlang-client/rabbit_common.app \
    rabbit_common/src/rabbit_common.app.src
 
-cp -v rabbitmq-erlang-client/dist/amqp_client/ebin/amqp_client.app \
+cp -v rabbitmq-erlang-client/dist/amqp_client-${DOT_VERSION}/ebin/amqp_client.app \
    amqp_client/src/amqp_client.app.src
