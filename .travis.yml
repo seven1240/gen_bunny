@@ -8,6 +8,4 @@ otp_release:
   - R14B01
 branches:
   only:
-    - master
-    - amqp_client-2.5.1
- 
+    - master 
