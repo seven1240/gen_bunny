@@ -1,4 +1,5 @@
 language: erlang
+script: "make test int_test"
 notifications:
   email: false
 otp_release:
