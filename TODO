@@ -1,6 +1,4 @@
-- gen_bunny flow control
 - crash-only reconnection for gen_bunny behaviour
 - on-demand bunnyc creation
 - bunnyc message persistence when disconnected
 - write documentation
-- write integration tests
