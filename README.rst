@@ -24,6 +24,73 @@ To get a local copy of gen_bunny only the following steps are needed.
   make
   make test
 
+Getting Started
+===============
+
+After cloning and compiling the code as above, start two terminal sessions
+(in tabs, or with screen or tmux). Start RabbitMQ in the first session:
+
+::
+
+  rabbitmq-server
+
+In the second terminal, start an erlang shell:
+
+::
+
+  erl -pa `find . -type d -name ebin`
+  %% Load Records Used With Rabbit:
+  > rr("deps/rabbit_common/include/rabbit_framing.hrl").
+
+  %% Start gen_bunny as a producer using the default exchange:
+  > bunnyc:start_link(mq_producer,
+                      {network, "localhost", 5672, {<<"guest">>, <<"guest">>}, <<"/">>},
+                      {#'exchange.declare'{exchange = <<"">>, durable=true}},
+                      [] ).
+
+  %% Start another gen_bunny as a producer/consumer using a named queue and exchange:
+  > bunnyc:start_link(mq_consumer, {network, "localhost"}, {<<"myexchange">>, <<"myqueue">>, <<"">>}, []).
+
+  %% Publish a message to "myqueue" via the default exchange:
+  > bunnyc:publish(mq_producer, <<"myqueue">>, <<"hello, world">>).
+
+  %% Fetch the message:
+  > bunnyc:get(mq_consumer, true).
+
+  {#'basic.get_ok'{delivery_tag = 1,redelivered = false,
+                   exchange = <<>>,routing_key = <<"myqueue">>,
+                   message_count = 0},
+   {amqp_msg,#'P_basic'{content_type = undefined,
+                        content_encoding = undefined,headers = undefined,
+                        delivery_mode = undefined,priority = undefined,
+                        correlation_id = undefined,reply_to = undefined,
+                        expiration = undefined,message_id = undefined,
+                        timestamp = undefined,type = undefined,user_id = undefined,
+                        app_id = undefined,cluster_id = undefined},
+             <<"hello, world">>}}
+
+  %% Publish a message to "myqueue" via the "myexchange" exchange:
+  > bunnyc:publish(mq_consumer, <<"">>, <<"hello again">>).
+
+  %% Fetch the message:
+  > bunnyc:get(mq_consumer, true).
+
+  {#'basic.get_ok'{delivery_tag = 2,redelivered = false,
+                   exchange = <<"myexchange">>,routing_key = <<>>,
+                   message_count = 0},
+   {amqp_msg,#'P_basic'{content_type = undefined,
+                        content_encoding = undefined,headers = undefined,
+                        delivery_mode = undefined,priority = undefined,
+                        correlation_id = undefined,reply_to = undefined,
+                        expiration = undefined,message_id = undefined,
+                        timestamp = undefined,type = undefined,user_id = undefined,
+                        app_id = undefined,cluster_id = undefined},
+             <<"hello again">>}}
+
+  %% Shut it down:
+  > bunnyc:stop(mq_consumer).
+  > bunnyc:stop(mq_producer).
+
 
 Using rebar
 ===========
