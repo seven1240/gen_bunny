@@ -224,12 +224,15 @@ declare(Channel, {Exchange, Queue, RoutingKey})
     {ok, {Exchange1, Queue1}}.
 
 
-declare_exchange(Channel, Exchange) ->
-    Exchange1 = new_exchange(Exchange),
+declare_exchange(Channel, #'exchange.declare'{exchange = <<"">>} = Exchange) ->
+    {ok, Exchange};
+declare_exchange(Channel, Exchange) when ?is_exchange(Exchange) ->
     #'exchange.declare_ok'{} = amqp_channel:call(
-                                 Channel,
-                                 Exchange1),
-    {ok, Exchange1}.
+                               Channel,
+                               Exchange),
+    {ok, Exchange};
+declare_exchange(Channel, Exchange) ->
+    declare_exchange(Channel, new_exchange(Exchange)).
 
 
 declare_queue(Channel, Queue) ->
