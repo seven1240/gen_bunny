@@ -82,6 +82,56 @@ register_flow_handler(Name, PID) when is_pid(PID) ->
     gen_server:cast(Name, {register_flow_handler, PID}).
 
 
+%% @doc Start the bunnyc gen_server as a locally registered process.
+%% === ConnectionInfo ===
+%% `ConnectionInfo' is passed as an argument to the connection fun, which by
+%% default is {@link gen_bunny_mon:connect/1}. In this case, `ConnectionInfo' can
+%% be any of the following types:
+%% <ul>
+%%
+%% <li>`{network, Host, Port, {User, Pass}, VHost}', or `{network, #amqp_params{} }':
+%% Connects to RabbitMQ over TCP, using the supplied parameters. When using the
+%% tuple form, each term after Host is optional. For any parameters not
+%% supplied, the defaults in the #amqp_params{} record definition are used.
+%% The default values are currently:
+%% ```
+%% {username          = <<"guest">>,
+%%  password          = <<"guest">>,
+%%  virtual_host      = <<"/">>,
+%%  host              = "localhost",
+%%  port              = 5672,
+%%  channel_max       = 0,
+%%  frame_max         = 0,
+%%  heartbeat         = 0,
+%%  ssl_options       = none,
+%%  client_properties = []}
+%% '''
+%% </li>
+%%
+%% <li>`direct' or `{direct, #amqp_params{} }': Connect to RabbitMQ using native
+%% Erlang messaging. See [http://www.rabbitmq.com/erlang-client-user-guide.html]
+%% </li>
+%% </ul>
+%%
+%% === DeclareInfo ===
+%% `DeclareInfo' is passed as an argument to the declare fun, which by default
+%% is {@link bunny_util:declare/2}. In this case, `DeclareInfo' can be any of the
+%% following:
+%% <ul>
+%% <li>`NameForEverything' (binary()): gen_bunny will declare an exchange and a
+%% queue with this name, and bind the queue to the exchange with a routing key of
+%% the same name.</li>
+%% <li>`{Exchange}': `Exchange' can be a binary() name, or an
+%% #'exchange.declare_ok'{} record.</li>
+%% <li>`{Exchange, Queue, RoutingKey}': `Exchange' is as described above.
+%% `Queue' may be a binary() name or a  #'queue.declare_ok'{} record. RoutingKey
+%% is a binary().
+%%
+%% === Args ===
+%% `Args' is a property list. If the key `connect_fun' is supplied, that fun
+%% will be used in place of the default connection fun described above. Likewise,
+%% if the key `declare_fun' is given, the associated value will be used in
+%% place of the default declare fun described above.
 start_link(Name, ConnectionInfo, DeclareInfo, Args) ->
     application:start(rabbit_common),
     application:start(amqp_client),
