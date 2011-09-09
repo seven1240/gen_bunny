@@ -125,7 +125,8 @@ register_flow_handler(Name, PID) when is_pid(PID) ->
 %% #'exchange.declare_ok'{} record.</li>
 %% <li>`{Exchange, Queue, RoutingKey}': `Exchange' is as described above.
 %% `Queue' may be a binary() name or a  #'queue.declare_ok'{} record. RoutingKey
-%% is a binary().
+%% is a binary().</li>
+%% </ul>
 %%
 %% === Args ===
 %% `Args' is a property list. If the key `connect_fun' is supplied, that fun
