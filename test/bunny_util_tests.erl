@@ -437,6 +437,23 @@ declare_exchange_test_() ->
              meck:validate(amqp_channel)
          end])}.
 
+declare_default_exchange_test_() ->
+    {setup, fun declare_setup/0, fun declare_stop/1,
+     ?_test(
+        [begin
+             meck:expect(
+               amqp_channel, call,
+               fun(dummy_channel,
+                   #'exchange.declare'{}) ->
+											 throw(should_not_declare_default_exchange_but_it_did)
+               end),
+             ?assertMatch({ok, _Exchange},
+                          bunny_util:declare_exchange(
+                            dummy_channel,
+                            bunny_util:new_exchange(<<"">>))),
+             meck:validate(amqp_channel)
+         end])}.
+
 declare_exchange_by_name_test_() ->
     {setup, fun declare_setup/0, fun declare_stop/1,
      ?_test(
