@@ -28,7 +28,7 @@ Getting Started
 ===============
 
 After cloning and compiling the code as above, start two terminal sessions
-(in tabs, or with screen_ or tmux_). Start RabbitMQ in the first session:
+(in tabs, or with screen or tmux). Start RabbitMQ in the first session:
 
 ::
 
