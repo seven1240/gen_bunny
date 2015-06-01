@@ -39,7 +39,9 @@
          get/2,
          ack/2,
          register_return_handler/2,
-         register_flow_handler/2
+         register_flow_handler/2,
+         get_connection/1,
+         get_channel/1
         ]).
 
 -export([init/1,
@@ -80,6 +82,14 @@ register_return_handler(Name, PID) when is_pid(PID) ->
 
 register_flow_handler(Name, PID) when is_pid(PID) ->
     gen_server:cast(Name, {register_flow_handler, PID}).
+
+%% @doc Get a connection to re-use
+get_connection(Name) ->
+    gen_server:call(Name, get_connection).
+
+%% @doc Get a channel to re-use
+get_channel(Name) ->
+    gen_server:call(Name, get_channel).
 
 
 %% @doc Start the bunnyc gen_server as a locally registered process.
@@ -178,6 +188,14 @@ handle_call({get, NoAck}, _From,
             State = #bunnyc_state{channel=Channel, queue=Queue}) ->
     Resp = internal_get(Channel, Queue, NoAck),
     {reply, Resp, State};
+
+handle_call(get_connection, _From,
+           State = #bunnyc_state{connection = Connection}) ->
+    {reply, Connection, State};
+
+handle_call(get_channel, _From,
+           State = #bunnyc_state{channel = Channel}) ->
+    {reply, Channel, State};
 
 handle_call(stop, _From,
             State = #bunnyc_state{channel=Channel, connection=Connection}) ->
